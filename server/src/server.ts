@@ -13,7 +13,7 @@ class Server {
   constructor() {
     this.app.use(cookieParser());
     this.app.use(bodyParser());
-    this.app.use(router);
+    this.app.use('/api', router);
 
     this.httpServer = http.createServer(this.app);
   }
