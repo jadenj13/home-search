@@ -6,6 +6,8 @@ class Config {
   public readonly nodeEnv = process.env.NODE_ENV;
   public readonly port = this.normalizePort(process.env.PORT);
   public readonly mongodbUri = process.env.MONGODB_URI;
+  public readonly jwtSecret = process.env.JWT_SECRET;
+  public readonly publicApiPaths = this.getPublicApiPaths();
 
   constructor() {
     this.ensureRequiredVariables();
@@ -13,7 +15,7 @@ class Config {
 
   private ensureRequiredVariables() {
     // required environment variables
-    ['NODE_ENV', 'PORT', 'MONGODB_URI'].forEach(name => {
+    ['NODE_ENV', 'PORT', 'MONGODB_URI', 'JWT_SECRET'].forEach(name => {
       if (!process.env[name]) {
         throw new Error(`Environment variable ${name} is missing`);
       }
@@ -32,6 +34,22 @@ class Config {
     }
 
     throw new Error('port is less than 0');
+  }
+
+  private getPublicApiPaths() {
+    if (!process.env.PUBLIC_API_PATHS) {
+      return [];
+    }
+
+    const paths = process.env.PUBLIC_API_PATHS.split(',').map(path => {
+      const trimmedPath = path.trim();
+      if (trimmedPath.startsWith('/') && trimmedPath.endsWith('/')) {
+        const exp = trimmedPath.substring(1, trimmedPath.length - 2);
+        return RegExp(exp);
+      }
+      return trimmedPath;
+    });
+    return paths;
   }
 }
 

@@ -1,18 +1,25 @@
 import * as express from 'express';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
 import * as mongoose from 'mongoose';
 import * as http from 'http';
+import * as jwt from 'express-jwt';
 import { config } from './common';
 import router from './api/router';
 
 class Server {
   public app: express.Application = express();
   public httpServer: http.Server;
+  private readonly jwtOptions = {
+    secret: config.jwtSecret,
+  };
 
   constructor() {
     this.app.use(cookieParser());
     this.app.use(bodyParser());
+    this.app.use(cors({ credentials: true, origin: true }));
+    this.app.use(jwt(this.jwtOptions).unless({ path: config.publicApiPaths }));
     this.app.use('/api', router);
 
     this.httpServer = http.createServer(this.app);
