@@ -5,4 +5,5 @@ export default express
   .Router()
   .post('/login', controller.login)
   .post('/register', controller.register)
-  .get('/current-user', controller.getCurrentUser);
+  .get('/current-user', controller.getCurrentUser)
+  .get('/logout', controller.logout);

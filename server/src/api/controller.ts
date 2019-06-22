@@ -6,6 +6,11 @@ import { User } from '../models';
 import { config } from '../common';
 
 export class Controller {
+  private readonly cookieOptions = {
+    maxAge: 1000 * 60 * 60 * 60 * 365,
+    httpOnly: true,
+  };
+
   constructor() {
     autoBind(this);
   }
@@ -31,10 +36,7 @@ export class Controller {
       delete userJson.password;
 
       const token = jwt.sign(userJson, config.jwtSecret);
-      res.cookie('token', token, {
-        maxAge: 1000 * 60 * 60 * 365,
-        httpOnly: true,
-      });
+      res.cookie('token', token, this.cookieOptions);
 
       return res.json(userJson);
     } catch (error) {
@@ -65,10 +67,7 @@ export class Controller {
       delete userJson.password;
 
       const token = jwt.sign(userJson, config.jwtSecret);
-      res.cookie('token', token, {
-        maxAge: 1000 * 60 * 60 * 365,
-        httpOnly: true,
-      });
+      res.cookie('token', token, this.cookieOptions);
 
       return res.json(userJson);
     } catch (error) {
@@ -88,6 +87,11 @@ export class Controller {
     } catch {
       return res.json();
     }
+  }
+
+  public logout(req: Request, res: Response) {
+    res.cookie('token', '', { maxAge: 0 });
+    return res.json();
   }
 }
 

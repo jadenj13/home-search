@@ -2,20 +2,25 @@
   <v-app>
     <v-toolbar app>
       <v-toolbar-title class="headline text-uppercase">
-        <span>Home Search</span>
+        <router-link to="/">
+          <h1 class="headline black--text">Home Search</h1>
+        </router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-layout v-if="!user" justify-end>
         <v-btn flat @click="loginDialog = true">
-          <span class="mr-2 text-uppercase">Login</span>
+          <span class="text-uppercase">Login</span>
         </v-btn>
         <v-btn flat @click="registerDialog = true">
-          <span class="mr-2 text-uppercase">Register</span>
+          <span class="text-uppercase">Register</span>
         </v-btn>
       </v-layout>
       <v-layout v-else justify-end>
         <v-btn flat to="/account">
-          <span class="mr-2 text-uppercase">Account</span>
+          <span class="text-uppercase">Account</span>
+        </v-btn>
+        <v-btn flat @click="logout()">
+          <span class="text-uppercase">Logout</span>
         </v-btn>
       </v-layout>
     </v-toolbar>
@@ -49,9 +54,14 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import axios from 'axios';
+import Axios from 'axios';
 import { mapMutations, mapState } from 'vuex';
 import AuthForm from '@/components/AuthForm.vue';
+
+const axios = Axios.create({
+  baseURL: 'http://localhost:3000/api',
+  withCredentials: true,
+});
 
 interface Credentials {
   email: string;
@@ -79,13 +89,7 @@ export default Vue.extend({
       this.isFetching = true;
 
       try {
-        const res = await axios.post(
-          'http://localhost:3000/api/register',
-          credentials,
-          {
-            withCredentials: true,
-          },
-        );
+        const res = await axios.post('/register', credentials);
 
         this.setUser(res.data);
         this.registerDialog = false;
@@ -100,13 +104,7 @@ export default Vue.extend({
       this.isFetching = true;
 
       try {
-        const res = await axios.post(
-          'http://localhost:3000/api/login',
-          credentials,
-          {
-            withCredentials: true,
-          },
-        );
+        const res = await axios.post('/login', credentials);
 
         this.setUser(res.data);
         this.loginDialog = false;
@@ -121,12 +119,23 @@ export default Vue.extend({
       this.isFetching = true;
 
       try {
-        const res = await axios.get('http://localhost:3000/api/current-user', {
-          withCredentials: true,
-        });
+        const res = await axios.get('/current-user');
 
         this.setUser(res.data);
         this.isFetching = false;
+      } catch (error) {
+        this.isFetching = false;
+      }
+    },
+
+    async logout() {
+      this.isFetching = true;
+
+      try {
+        await axios.get('/logout');
+        this.setUser(null);
+        this.isFetching = false;
+        this.$router.push('/');
       } catch (error) {
         this.isFetching = false;
       }
@@ -137,3 +146,9 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+a {
+  text-decoration: none;
+}
+</style>

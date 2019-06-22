@@ -2,6 +2,11 @@
   <v-card>
     <v-card-title>
       <span class="headline">{{ headline }}</span>
+      <v-layout justify-end>
+        <v-btn flat icon @click="$emit('close')">
+          <v-icon>close</v-icon>
+        </v-btn>
+      </v-layout>
     </v-card-title>
     <v-divider></v-divider>
     <v-card-text class="text-md-center">
@@ -26,20 +31,12 @@
         <v-spacer></v-spacer>
         <v-layout justify-end>
           <v-btn
-            color="darken-1"
-            flat
-            @click="$emit('close')"
-            :disabled="isFetching"
-            >Close</v-btn
-          >
-          <v-btn
             color="primary darken-1"
             flat
             type="submit"
             :disabled="isFetching || !email || !password"
+            >{{ buttonText }}</v-btn
           >
-            {{ buttonText }}
-          </v-btn>
         </v-layout>
       </v-form>
     </v-card-text>

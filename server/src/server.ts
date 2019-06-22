@@ -19,6 +19,19 @@ class Server {
     this.app.use(cookieParser());
     this.app.use(bodyParser());
     this.app.use(cors({ credentials: true, origin: true }));
+    this.app.use(
+      '/api',
+      (
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction,
+      ) => {
+        if (req.cookies && req.cookies.token) {
+          req.headers.authorization = `Bearer ${req.cookies.token}`;
+        }
+        next();
+      },
+    );
     this.app.use(jwt(this.jwtOptions).unless({ path: config.publicApiPaths }));
     this.app.use('/api', router);
 
