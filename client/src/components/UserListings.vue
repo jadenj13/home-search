@@ -13,7 +13,7 @@
         <v-divider></v-divider>
         <v-card-text>
           <v-container column>
-            <v-layout v-if="isFetching" justify-center my-5>
+            <v-layout v-if="isFetching" my-5>
               <v-progress-circular
                 indeterminate
                 size="100"
@@ -24,12 +24,8 @@
               <v-flex v-if="listings.length === 0">
                 <span class="title">You don't have any listings yet!</span>
               </v-flex>
-              <v-layout v-else>
-                <v-flex
-                  v-for="listing in listings"
-                  :key="listing._id"
-                  justify-space-around
-                >
+              <v-layout v-else justify-center wrap>
+                <v-flex v-for="listing in listings" :key="listing._id" my-4>
                   <listing
                     :details="listing"
                     @deleteListing="deleteListing($event)"
