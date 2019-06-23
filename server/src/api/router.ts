@@ -6,4 +6,5 @@ export default express
   .post('/login', controller.login)
   .post('/register', controller.register)
   .get('/current-user', controller.getCurrentUser)
-  .get('/logout', controller.logout);
+  .get('/logout', controller.logout)
+  .post('/listing', controller.addListing);

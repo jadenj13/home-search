@@ -2,8 +2,12 @@ import { Request, Response } from 'express';
 import * as autoBind from 'auto-bind';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { User } from '../models';
+import { User, Listing } from '../models';
 import { config } from '../common';
+
+interface IRequest extends Request {
+  user?: any;
+}
 
 export class Controller {
   private readonly cookieOptions = {
@@ -15,7 +19,7 @@ export class Controller {
     autoBind(this);
   }
 
-  public async login(req: Request, res: Response) {
+  public async login(req: IRequest, res: Response) {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json('Missing required fields.');
@@ -45,7 +49,7 @@ export class Controller {
     }
   }
 
-  public async register(req: Request, res: Response) {
+  public async register(req: IRequest, res: Response) {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json('Missing required fields.');
@@ -76,7 +80,7 @@ export class Controller {
     }
   }
 
-  public getCurrentUser(req: Request, res: Response) {
+  public getCurrentUser(req: IRequest, res: Response) {
     if (!req.cookies || !req.cookies.token) {
       return res.json();
     }
@@ -89,9 +93,31 @@ export class Controller {
     }
   }
 
-  public logout(req: Request, res: Response) {
+  public logout(req: IRequest, res: Response) {
     res.cookie('token', '', { maxAge: 0 });
     return res.json();
+  }
+
+  public async addListing(req: IRequest, res: Response) {
+    if (
+      !req.body.address ||
+      !req.body.askingPrice ||
+      !req.body.ownersName ||
+      !req.body.propertyDescription ||
+      !req.body.coordinates ||
+      !req.body.imageUrl ||
+      !req.user._id
+    ) {
+      return res.status(400).json('Missing required information.');
+    }
+
+    const listingModel = new Listing({
+      ...req.body,
+      userId: req.user._id,
+    });
+
+    const listing = await listingModel.save();
+    return res.json(listing);
   }
 }
 

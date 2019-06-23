@@ -13,7 +13,7 @@
       <v-card-text v-if="step === 'address'">
         <h6 class="title">Listing Address</h6>
         <v-container>
-          <v-form>
+          <v-form @submit.prevent="submitAddress()">
             <v-text-field
               type="text"
               v-model="addressLine1"
@@ -48,7 +48,7 @@
               <v-btn
                 raised
                 class="primary"
-                @click="submitAddress()"
+                type="submit"
                 :disabled="addressFormDisabled"
               >
                 <span class="text-uppercase">Next</span>
@@ -58,14 +58,14 @@
         </v-container>
       </v-card-text>
 
-      <v-card-text v-else-if="(step = 'confirmAddress')">
-        <v-container v-show="isFetching" justify-center my-5>
+      <v-card-text v-else-if="step === 'confirmAddress'">
+        <v-layout v-if="isFetching" justify-center my-5>
           <v-progress-circular
             indeterminate
             size="100"
             color="primary"
           ></v-progress-circular>
-        </v-container>
+        </v-layout>
         <v-container v-show="!isFetching" column>
           <v-layout mb-4>
             <h6 class="title">Confirm Address</h6>
@@ -86,6 +86,104 @@
           </v-btn>
         </v-layout>
       </v-card-text>
+
+      <v-card-text v-else-if="step === 'details'">
+        <v-container>
+          <v-layout mb-2>
+            <h6 class="title">Property Details</h6>
+          </v-layout>
+          <v-form @submit.prevent="step = 'confirmListing'">
+            <v-text-field
+              label="Owner's Name"
+              type="text"
+              v-model="ownersName"
+              required
+            />
+            <v-text-field
+              label="Asking Price"
+              type="number"
+              v-model="askingPrice"
+              required
+            />
+            <v-text-field
+              label="Image URL"
+              type="string"
+              v-model="imageUrl"
+              required
+            />
+            <v-text-field
+              label="Property Description"
+              type="string"
+              v-model="propertyDescription"
+              required
+            />
+            <v-layout justify-end>
+              <v-btn raised class="primary" @click="step = 'confirmAddress'">
+                <span class="text-uppercase">Previous</span>
+              </v-btn>
+              <v-btn
+                raised
+                class="primary"
+                type="submit"
+                :disabled="detailsFormDisabled"
+              >
+                <span class="text-uppercase">Next</span>
+              </v-btn>
+            </v-layout>
+          </v-form>
+        </v-container>
+      </v-card-text>
+
+      <v-card-text v-else-if="step === 'confirmListing'">
+        <v-container>
+          <v-layout v-if="isFetching" justify-center my-5>
+            <v-progress-circular
+              indeterminate
+              size="100"
+              color="primary"
+            ></v-progress-circular>
+          </v-layout>
+          <v-container v-if="!isFetching" pa-0>
+            <v-layout mb-2>
+              <h6 class="title">Confirm Listing</h6>
+            </v-layout>
+            <v-layout column>
+              <v-flex>
+                <span class="subheading">Address: {{ address }}</span>
+              </v-flex>
+              <v-flex>
+                <span class="subheading">Owner's Name: {{ ownersName }}</span>
+              </v-flex>
+              <v-flex>
+                <span class="subheading">Asking Price: ${{ askingPrice }}</span>
+              </v-flex>
+              <v-flex>
+                <span class="subheading"
+                  >Image URL: {{ imageUrl.slice(0, 30) }}...</span
+                >
+              </v-flex>
+              <v-flex>
+                <span class="subheading"
+                  >Property Description: {{ propertyDescription }}</span
+                >
+              </v-flex>
+            </v-layout>
+            <v-layout justify-end>
+              <v-btn raised class="primary" @click="step = 'details'">
+                <span class="text-uppercase">Previous</span>
+              </v-btn>
+              <v-btn
+                raised
+                class="primary"
+                :disabled="detailsFormDisabled"
+                @click="addListing()"
+              >
+                <span class="text-uppercase">Add Listing</span>
+              </v-btn>
+            </v-layout>
+          </v-container>
+        </v-container>
+      </v-card-text>
     </v-card>
   </v-dialog>
 </template>
@@ -93,6 +191,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import states from '../utils/states';
+import axios from '../utils/axios';
 
 const geocoder = new (window as any).google.maps.Geocoder();
 
@@ -112,10 +211,27 @@ export default Vue.extend({
     coordinates: null as null | { lat: number; lng: number },
     map: null as any,
     marker: null as any,
+    ownersName: '',
+    askingPrice: null as null | number,
+    imageUrl: '',
+    propertyDescription: '',
   }),
   computed: {
     addressFormDisabled(): boolean {
       return !this.addressLine1 || !this.city || !this.state || !this.zipCode;
+    },
+    detailsFormDisabled(): boolean {
+      return (
+        !this.ownersName ||
+        !this.askingPrice ||
+        !this.imageUrl ||
+        !this.propertyDescription
+      );
+    },
+    address(): string {
+      return `${this.addressLine1} ${this.addressLine2}, ${this.city}, ${
+        this.state
+      } ${this.zipCode}`;
     },
   },
   methods: {
@@ -163,6 +279,38 @@ export default Vue.extend({
         position: this.coordinates,
         map: this.map,
       });
+    },
+
+    async addListing() {
+      this.isFetching = true;
+
+      const listing = {
+        address: this.address,
+        askingPrice: this.askingPrice,
+        ownersName: this.ownersName,
+        propertyDescription: this.propertyDescription,
+        coordinates: this.coordinates,
+        imageUrl: this.imageUrl,
+      };
+
+      const res = await axios.post('/listing', listing);
+
+      this.step = 'address';
+      this.addressLine1 = '';
+      this.addressLine2 = '';
+      this.city = '';
+      this.state = '';
+      this.zipCode = '';
+      this.coordinates = null;
+      this.map = null;
+      this.marker = null;
+      this.ownersName = '';
+      this.askingPrice = null;
+      this.imageUrl = '';
+      this.propertyDescription = '';
+
+      this.isFetching = false;
+      this.$emit('close');
     },
   },
 });

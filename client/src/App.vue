@@ -57,11 +57,7 @@ import Vue from 'vue';
 import Axios from 'axios';
 import { mapMutations, mapState } from 'vuex';
 import AuthForm from '@/components/AuthForm.vue';
-
-const axios = Axios.create({
-  baseURL: 'http://localhost:3000/api',
-  withCredentials: true,
-});
+import axios from './utils/axios';
 
 interface Credentials {
   email: string;
