@@ -22,18 +22,18 @@ export class Controller {
   public async login(req: IRequest, res: Response) {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json('Missing required fields.');
+      return res.status(400).send('Missing required fields.');
     }
 
     try {
       const user = await User.findOne({ email: email.toLowerCase() });
       if (!user) {
-        return res.status(400).json('Email does not exist.');
+        return res.status(400).send('Email does not exist.');
       }
 
       const validPassword = await bcrypt.compare(password, user.password);
       if (!validPassword) {
-        return res.status(401).json('Invalid password.');
+        return res.status(401).send('Invalid password.');
       }
 
       const userJson = user.toJSON();
@@ -52,7 +52,7 @@ export class Controller {
   public async register(req: IRequest, res: Response) {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json('Missing required fields.');
+      return res.status(400).send('Missing required fields.');
     }
 
     const emailLower = email.toLowerCase();
@@ -108,7 +108,7 @@ export class Controller {
       !req.body.imageUrl ||
       !req.user._id
     ) {
-      return res.status(400).json('Missing required information.');
+      return res.status(400).send('Missing required information.');
     }
 
     const listingModel = new Listing({
@@ -118,6 +118,51 @@ export class Controller {
 
     const listing = await listingModel.save();
     return res.json(listing);
+  }
+
+  public async getCurrentUsersListings(req: IRequest, res: Response) {
+    if (!req.user._id) {
+      return res.status(400).send('User not logged in.');
+    }
+
+    const listings = await Listing.find({ userId: req.user._id });
+    return res.json(listings);
+  }
+
+  public async updateListing(req: IRequest, res: Response) {
+    if (!req.user._id) {
+      return res.status(400).send('User not logged in.');
+    }
+
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+      return res.status(400).send('Listing does not exist.');
+    }
+
+    if (listing.userId !== req.user._id) {
+      return res.status(401).send('Incorrect user.');
+    }
+
+    const updatedListing = await listing.update(req.body);
+    return res.json(updatedListing);
+  }
+
+  public async deleteListing(req: IRequest, res: Response) {
+    if (!req.user._id) {
+      return res.status(400).send('User not logged in.');
+    }
+
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+      return res.status(400).send('Listing does not exist.');
+    }
+
+    if (listing.userId !== req.user._id) {
+      return res.status(401).send('Incorrect user.');
+    }
+
+    await listing.remove();
+    return res.sendStatus(200);
   }
 }
 

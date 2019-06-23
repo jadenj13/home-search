@@ -7,4 +7,7 @@ export default express
   .post('/register', controller.register)
   .get('/current-user', controller.getCurrentUser)
   .get('/logout', controller.logout)
-  .post('/listing', controller.addListing);
+  .post('/listing', controller.addListing)
+  .get('/user/listings', controller.getCurrentUsersListings)
+  .put('/listing/:id', controller.updateListing)
+  .delete('/listing/:id', controller.deleteListing);

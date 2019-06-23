@@ -309,6 +309,7 @@ export default Vue.extend({
       this.imageUrl = '';
       this.propertyDescription = '';
 
+      this.$emit('listingSubmitted');
       this.isFetching = false;
       this.$emit('close');
     },
