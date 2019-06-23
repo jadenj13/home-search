@@ -6,7 +6,7 @@
     </v-card-title>
     <v-card-text>
       <v-layout pa-0 justify-end>
-        <v-btn raised>
+        <v-btn raised @click="$emit('editListing', details)">
           <span class="text-uppercase">Edit</span>
         </v-btn>
         <v-btn

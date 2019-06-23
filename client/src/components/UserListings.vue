@@ -33,6 +33,7 @@
                   <listing
                     :details="listing"
                     @deleteListing="deleteListing($event)"
+                    @editListing="editListing($event)"
                   ></listing>
                 </v-flex>
               </v-layout>
@@ -47,6 +48,14 @@
       @listingSubmitted="getListings()"
       @close="addListingDialog = false"
     ></add-listing>
+
+    <edit-listing
+      v-if="editListingDialog"
+      :show="editListingDialog"
+      :listing="selectedListing"
+      @close="editListingDialog = false"
+      @saved="getListings()"
+    ></edit-listing>
   </v-layout>
 </template>
 
@@ -54,18 +63,36 @@
 import Vue from 'vue';
 import AddListing from '@/components/AddListing.vue';
 import Listing from '@/components/Listing.vue';
+import EditListing from '@/components/EditListing.vue';
 import axios from '../utils/axios';
+
+interface IListing {
+  address: string;
+  askingPrice: number;
+  ownersName: string;
+  propertyDescription: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  imageUrl: string;
+  userId: string;
+  _id: string;
+}
 
 export default Vue.extend({
   name: 'user-listings',
   components: {
     AddListing,
     Listing,
+    EditListing,
   },
   data: () => ({
     addListingDialog: false,
     isFetching: false,
     listings: [],
+    editListingDialog: false,
+    selectedListing: null as null | IListing,
   }),
   methods: {
     async getListings() {
@@ -79,6 +106,11 @@ export default Vue.extend({
       this.isFetching = true;
       await axios.delete(`/listing/${id}`);
       await this.getListings();
+    },
+
+    async editListing(listing: IListing) {
+      this.editListingDialog = true;
+      this.selectedListing = listing;
     },
   },
   async mounted() {
