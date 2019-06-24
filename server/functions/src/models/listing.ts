@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 
 interface ListingDoc extends mongoose.Document {
   address: string;
-  askingPrice: number;
+  askingPrice: string;
   ownersName: string;
   propertyDescription: string;
   coordinates: {

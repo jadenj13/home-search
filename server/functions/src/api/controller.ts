@@ -16,6 +16,7 @@ export class Controller {
   };
 
   constructor() {
+    // @ts-ignore
     autoBind(this);
   }
 
@@ -163,6 +164,25 @@ export class Controller {
 
     await listing.remove();
     return res.sendStatus(200);
+  }
+
+  public async getListings(req: IRequest, res: Response) {
+    const upperLat = req.query['upper-lat'];
+    const lowerLat = req.query['lower-lat'];
+    const upperLng = req.query['upper-lng'];
+    const lowerLng = req.query['lower-lng'];
+
+    const listings = await Listing.find({
+      'coordinates.lat': {
+        $gte: +lowerLat,
+        $lte: +upperLat,
+      },
+      'coordinates.lng': {
+        $gte: +lowerLng,
+        $lte: +upperLng,
+      },
+    });
+    return res.json(listings);
   }
 }
 

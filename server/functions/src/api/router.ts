@@ -10,4 +10,5 @@ export default express
   .post('/listing', controller.addListing)
   .get('/user/listings', controller.getCurrentUsersListings)
   .put('/listing/:id', controller.updateListing)
-  .delete('/listing/:id', controller.deleteListing);
+  .delete('/listing/:id', controller.deleteListing)
+  .get('/listings', controller.getListings);

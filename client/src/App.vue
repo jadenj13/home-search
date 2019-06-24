@@ -26,7 +26,7 @@
     </v-toolbar>
 
     <v-content>
-      <router-view />
+      <router-view/>
     </v-content>
 
     <v-dialog v-model="loginDialog" max-width="400" persistent>

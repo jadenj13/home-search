@@ -12,7 +12,7 @@ class Server {
   public app: express.Application = express();
   public httpServer: http.Server;
   private readonly jwtOptions = {
-    secret: config.jwtSecret,
+    secret: config.jwtSecret as string,
   };
 
   constructor() {
@@ -20,7 +20,6 @@ class Server {
     this.app.use(bodyParser());
     this.app.use(cors({ credentials: true, origin: true }));
     this.app.use(
-      '/api',
       (
         req: express.Request,
         res: express.Response,
@@ -33,9 +32,10 @@ class Server {
       },
     );
     this.app.use(jwt(this.jwtOptions).unless({ path: config.publicApiPaths }));
-    this.app.use('/api', router);
+    this.app.use(router);
 
     this.httpServer = http.createServer(this.app);
+    this.initialize();
   }
 
   private listen() {
@@ -49,7 +49,7 @@ class Server {
       mongoose.set('useCreateIndex', true);
       mongoose.set('useFindAndModify', false);
 
-      mongoose.connect(config.mongodbUri, { useNewUrlParser: true });
+      mongoose.connect(config.mongodbUri as string, { useNewUrlParser: true });
 
       mongoose.connection.once('open', () => {
         console.log(`Connected to mongoDb`);

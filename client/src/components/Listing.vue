@@ -1,5 +1,5 @@
 <template>
-  <v-card max-width="400">
+  <v-card max-width="375">
     <v-img :src="details.imageUrl" aspect-ratio="1.5"></v-img>
     <v-card-title class="justify-end">
       <span class="title">{{ details.address }}</span>
@@ -9,11 +9,7 @@
         <v-btn raised @click="$emit('editListing', details)">
           <span class="text-uppercase">Edit</span>
         </v-btn>
-        <v-btn
-          raised
-          color="error"
-          @click="$emit('deleteListing', details._id)"
-        >
+        <v-btn raised color="error" @click="$emit('deleteListing', details._id)">
           <span class="text-uppercase">Delete</span>
         </v-btn>
       </v-layout>

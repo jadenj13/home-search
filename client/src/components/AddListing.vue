@@ -14,43 +14,19 @@
         <h6 class="title">Listing Address</h6>
         <v-container>
           <v-form @submit.prevent="submitAddress()">
-            <v-text-field
-              type="text"
-              v-model="addressLine1"
-              label="Address Line 1"
-              required
-            />
-            <v-text-field
-              type="text"
-              v-model="addressLine2"
-              label="Address Line 2"
-            />
-            <v-text-field type="text" v-model="city" label="City" required />
+            <v-text-field type="text" v-model="addressLine1" label="Address Line 1" required/>
+            <v-text-field type="text" v-model="addressLine2" label="Address Line 2"/>
+            <v-text-field type="text" v-model="city" label="City" required/>
             <v-layout row wrap justify-space-between>
               <v-flex xs12 sm5>
-                <v-select
-                  v-model="state"
-                  :items="states"
-                  label="State"
-                  single-line
-                ></v-select>
+                <v-select v-model="state" :items="states" label="State" single-line></v-select>
               </v-flex>
               <v-flex xs12 sm5>
-                <v-text-field
-                  type="text"
-                  v-model="zipCode"
-                  label="Zip Code"
-                  required
-                />
+                <v-text-field type="text" v-model="zipCode" label="Zip Code" required/>
               </v-flex>
             </v-layout>
             <v-layout justify-end>
-              <v-btn
-                raised
-                class="primary"
-                type="submit"
-                :disabled="addressFormDisabled"
-              >
+              <v-btn raised class="primary" type="submit" :disabled="addressFormDisabled">
                 <span class="text-uppercase">Next</span>
               </v-btn>
             </v-layout>
@@ -60,17 +36,13 @@
 
       <v-card-text v-else-if="step === 'confirmAddress'">
         <v-layout v-if="isFetching" justify-center my-5>
-          <v-progress-circular
-            indeterminate
-            size="100"
-            color="primary"
-          ></v-progress-circular>
+          <v-progress-circular indeterminate size="100" color="primary"></v-progress-circular>
         </v-layout>
         <v-container v-show="!isFetching" column>
           <v-layout mb-4>
             <h6 class="title">Confirm Address</h6>
           </v-layout>
-          <v-layout ref="map" style="height: 250px"></v-layout>
+          <v-layout ref="addressMap" style="height: 250px"></v-layout>
           <v-layout align-center column mt-3>
             <p class="subheading">{{ addressLine1 }}</p>
             <p v-if="addressLine2" class="subheading">{{ addressLine2 }}</p>
@@ -93,24 +65,9 @@
             <h6 class="title">Property Details</h6>
           </v-layout>
           <v-form @submit.prevent="step = 'confirmListing'">
-            <v-text-field
-              label="Owner's Name"
-              type="text"
-              v-model="ownersName"
-              required
-            />
-            <v-text-field
-              label="Asking Price"
-              type="number"
-              v-model="askingPrice"
-              required
-            />
-            <v-text-field
-              label="Image URL"
-              type="string"
-              v-model="imageUrl"
-              required
-            />
+            <v-text-field label="Owner's Name" type="text" v-model="ownersName" required/>
+            <v-text-field label="Asking Price" type="number" v-model="askingPrice" required/>
+            <v-text-field label="Image URL" type="string" v-model="imageUrl" required/>
             <v-text-field
               label="Property Description"
               type="string"
@@ -121,12 +78,7 @@
               <v-btn raised class="primary" @click="step = 'confirmAddress'">
                 <span class="text-uppercase">Previous</span>
               </v-btn>
-              <v-btn
-                raised
-                class="primary"
-                type="submit"
-                :disabled="detailsFormDisabled"
-              >
+              <v-btn raised class="primary" type="submit" :disabled="detailsFormDisabled">
                 <span class="text-uppercase">Next</span>
               </v-btn>
             </v-layout>
@@ -137,11 +89,7 @@
       <v-card-text v-else-if="step === 'confirmListing'">
         <v-container>
           <v-layout v-if="isFetching" justify-center my-5>
-            <v-progress-circular
-              indeterminate
-              size="100"
-              color="primary"
-            ></v-progress-circular>
+            <v-progress-circular indeterminate size="100" color="primary"></v-progress-circular>
           </v-layout>
           <v-container v-if="!isFetching" pa-0>
             <v-layout mb-2>
@@ -158,26 +106,17 @@
                 <span class="subheading">Asking Price: ${{ askingPrice }}</span>
               </v-flex>
               <v-flex>
-                <span class="subheading"
-                  >Image URL: {{ imageUrl.slice(0, 30) }}...</span
-                >
+                <span class="subheading">Image URL: {{ imageUrl.slice(0, 30) }}...</span>
               </v-flex>
               <v-flex>
-                <span class="subheading"
-                  >Property Description: {{ propertyDescription }}</span
-                >
+                <span class="subheading">Property Description: {{ propertyDescription }}</span>
               </v-flex>
             </v-layout>
             <v-layout justify-end>
               <v-btn raised class="primary" @click="step = 'details'">
                 <span class="text-uppercase">Previous</span>
               </v-btn>
-              <v-btn
-                raised
-                class="primary"
-                :disabled="detailsFormDisabled"
-                @click="addListing()"
-              >
+              <v-btn raised class="primary" :disabled="detailsFormDisabled" @click="addListing()">
                 <span class="text-uppercase">Add Listing</span>
               </v-btn>
             </v-layout>
@@ -229,9 +168,9 @@ export default Vue.extend({
       );
     },
     address(): string {
-      return `${this.addressLine1} ${this.addressLine2}, ${this.city}, ${
-        this.state
-      } ${this.zipCode}`;
+      return `${this.addressLine1}${this.addressLine2 ? ' ' : ''}${
+        this.addressLine2
+      }, ${this.city}, ${this.state} ${this.zipCode}`;
     },
   },
   methods: {
@@ -271,7 +210,7 @@ export default Vue.extend({
       this.coordinates = await this.getListingCoordinates();
       this.isFetching = false;
 
-      this.map = new (window as any).google.maps.Map(this.$refs.map, {
+      this.map = new (window as any).google.maps.Map(this.$refs.addressMap, {
         zoom: 16,
         center: this.coordinates,
       });

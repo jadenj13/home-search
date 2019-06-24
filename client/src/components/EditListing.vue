@@ -25,12 +25,7 @@
               v-model="listingData.askingPrice"
               required
             />
-            <v-text-field
-              label="Image URL"
-              type="string"
-              v-model="listingData.imageUrl"
-              required
-            />
+            <v-text-field label="Image URL" type="string" v-model="listingData.imageUrl" required/>
             <v-text-field
               label="Property Description"
               type="string"
@@ -38,12 +33,7 @@
               required
             />
             <v-layout justify-end>
-              <v-btn
-                raised
-                class="primary"
-                type="submit"
-                :disabled="saveDisabled"
-              >
+              <v-btn raised class="primary" type="submit" :disabled="saveDisabled">
                 <span class="text-uppercase">Save</span>
               </v-btn>
             </v-layout>
@@ -73,10 +63,10 @@ export default Vue.extend({
   computed: {
     saveDisabled(): boolean {
       return (
-        !this.listing.ownersName ||
-        !this.listing.askingPrice ||
-        !this.listing.imageUrl ||
-        !this.listing.propertyDescription ||
+        !this.listingData.ownersName ||
+        !this.listingData.askingPrice ||
+        !this.listingData.imageUrl ||
+        !this.listingData.propertyDescription ||
         this.isFetching
       );
     },
@@ -88,6 +78,7 @@ export default Vue.extend({
 
     async editListing() {
       this.isFetching = true;
+
       await axios.put(`/listing/${this.listingData._id}`, this.listingData);
       this.isFetching = false;
       this.$emit('saved');
